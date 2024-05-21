@@ -50,6 +50,7 @@ export const subirImagen = async (req, res) => {
 }
 
 export const subirPdf = (req, res) => {
+  // Implementar el guardado del nuevo nombre del archivo pdf en una tabla llamada "pdfs" de la base de datos.
   console.log(req.file)
   res.json({ message: 'Curriculum subido' })
 }
