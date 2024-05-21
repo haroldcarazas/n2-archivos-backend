@@ -19,6 +19,11 @@ export const getImagen = async (req, res) => {
   }
 }
 
+export const getPdf = async (req, res) => {
+  // A tomar en cuenta: se debe obtener el archivo pdf por su nombre y enviarlo como respuesta. Además, se debe validar que el nombre que se recibe es con la extensión ".pdf", caso contrario se deberá enviar un mensaje al cliente indicando que no se ha proporcionado el nombre de una imagen.
+  // Coloca tu código para obtener el archivo PDF aquí
+}
+
 export const subirImagen = (req, res) => {
   console.log(req.file)
   res.json({ message: 'Archivo subido' })
