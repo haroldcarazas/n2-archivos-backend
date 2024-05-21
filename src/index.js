@@ -1,11 +1,12 @@
 import express from 'express'
 import { uploadImage, uploadPdf } from './multer.js'
-import { getImagen, subirImagen, subirPdf } from './controller.js'
+import { getImagen, getPdf, subirImagen, subirPdf } from './controller.js'
 import { manejarErrorArchivo } from './helpers.js'
 
 const app = express()
 
 app.get('/imagen/:nombre', getImagen)
+app.get('/pdf/:nombre', getPdf)
 
 app.post(
   '/subir-imagen',

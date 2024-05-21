@@ -1,5 +1,7 @@
 import path from 'node:path'
 import fs from 'node:fs/promises'
+import { nuevoNombreImagen } from './multer.js'
+import { pool } from './db.js'
 
 export const getImagen = async (req, res) => {
   try {
@@ -20,13 +22,31 @@ export const getImagen = async (req, res) => {
 }
 
 export const getPdf = async (req, res) => {
-  // A tomar en cuenta: se debe obtener el archivo pdf por su nombre y enviarlo como respuesta. Además, se debe validar que el nombre que se recibe es con la extensión ".pdf", caso contrario se deberá enviar un mensaje al cliente indicando que no se ha proporcionado el nombre de una imagen.
-  // Coloca tu código para obtener el archivo PDF aquí
+  const { nombre } = req.params
+  const extension = path.extname(nombre)
+
+  if (extension !== '.pdf') {
+    return res.status(400).json({ message: 'Debes proporcionar un nombre válido (ej: archivo.pdf)' })
+  }
+
+  const rutaCarpeta = path.resolve('./uploads/pdf')
+  const rutaArchivo = path.join(rutaCarpeta, nombre)
+  await fs.access(rutaArchivo, fs.constants.F_OK)
+  res.sendFile(rutaArchivo)
 }
 
-export const subirImagen = (req, res) => {
-  console.log(req.file)
-  res.json({ message: 'Archivo subido' })
+export const subirImagen = async (req, res) => {
+  if (nuevoNombreImagen === null) {
+    return res.status(500).json({ message: 'No se pudo subir la imagen' })
+  }
+
+  const [resultado] = await pool.execute('INSERT INTO imagenes(imagen, usuario) VALUES (?, "Juan")', [nuevoNombreImagen])
+
+  if (resultado.affectedRows === 1) {
+    return res.status(201).json({ message: 'Se guardó la imagen correctamente' })
+  }
+
+  res.status(500).json({ message: 'Error interno' })
 }
 
 export const subirPdf = (req, res) => {
