@@ -3,6 +3,8 @@ import { uploadImage, uploadPdf } from './multer.js'
 import { deleteArchivo, getImagen, getImagenes, getPdf, subirImagen, subirPdf } from './controller.js'
 import { manejarErrorArchivo } from './helpers.js'
 import { PORT, originsAllowed } from './config.js'
+import swaggerUi from 'swagger-ui-express'
+import jsonDocs from './swagger-output.json' assert {type: 'json'}
 
 const app = express()
 
@@ -15,6 +17,7 @@ app.use((req, res, next) => {
   }
 })
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(jsonDocs))
 app.get('/imagenes', getImagenes)
 app.get('/imagenes/:nombre', getImagen)
 app.get('/pdf/:nombre', getPdf)
