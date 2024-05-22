@@ -2,6 +2,7 @@ import express from 'express'
 import { uploadImage, uploadPdf } from './multer.js'
 import { deleteArchivo, getImagen, getImagenes, getPdf, subirImagen, subirPdf } from './controller.js'
 import { manejarErrorArchivo } from './helpers.js'
+import { PORT } from './config.js'
 
 const app = express()
 
@@ -35,4 +36,4 @@ app.post(
 
 app.delete('/archivo/:tipo/:nombre', deleteArchivo)
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'))
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`))
