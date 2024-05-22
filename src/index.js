@@ -2,15 +2,14 @@ import express from 'express'
 import { uploadImage, uploadPdf } from './multer.js'
 import { deleteArchivo, getImagen, getImagenes, getPdf, subirImagen, subirPdf } from './controller.js'
 import { manejarErrorArchivo } from './helpers.js'
-import { PORT } from './config.js'
+import { PORT, originsAllowed } from './config.js'
 
 const app = express()
 
 app.use((req, res, next) => {
   const { origin } = req.headers
-  console.log(origin)
 
-  if (origin === 'http://127.0.0.1:5500' || origin === undefined) {
+  if (originsAllowed.includes(origin) || origin === undefined) {
     res.setHeader('Access-Control-Allow-Origin', origin ?? '*')
     next()
   }

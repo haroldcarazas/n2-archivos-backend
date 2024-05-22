@@ -47,11 +47,13 @@ export const getPdf = async (req, res) => {
 
 export const subirImagen = async (req, res) => {
   try {
+    const { user } = req.body
+
     if (nuevoNombreArchivo === null) {
       return res.status(500).json({ message: 'No se pudo subir la imagen' })
     }
 
-    const [resultado] = await pool.execute('INSERT INTO imagenes(imagen, usuario) VALUES (?, "Juan")', [nuevoNombreArchivo])
+    const [resultado] = await pool.execute('INSERT INTO imagenes(imagen, usuario) VALUES (?, ?)', [nuevoNombreArchivo, user])
 
     if (resultado.affectedRows === 1) {
       return res.status(201).json({ message: 'Se guardó la imagen correctamente' })
