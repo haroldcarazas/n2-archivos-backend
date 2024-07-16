@@ -1,7 +1,6 @@
 import path from 'node:path'
 import fs from 'node:fs/promises'
-import { nuevoNombreArchivo } from './multer.js'
-import { pool } from './db.js'
+import { pool } from '../config/db.js'
 
 export const getImagenes = async (req, res) => {
   const [imagenes] = await pool.query('SELECT * FROM imagenes')
@@ -33,30 +32,38 @@ export const getPdf = async (req, res) => {
     const extension = path.extname(nombre)
 
     if (extension !== '.pdf') {
-      return res.status(400).json({ message: 'Debes proporcionar un nombre válido (ej: archivo.pdf)' })
+      return res
+        .status(400)
+        .json({
+          message: 'Debes proporcionar un nombre válido (ej: archivo.pdf)'
+        })
     }
 
     const rutaCarpeta = path.resolve('./uploads/pdf')
     const rutaArchivo = path.join(rutaCarpeta, nombre)
     await fs.access(rutaArchivo, fs.constants.F_OK)
     res.sendFile(rutaArchivo)
-  } catch (error) {
-
-  }
+  } catch (error) {}
 }
 
 export const subirImagen = async (req, res) => {
   try {
     const { user } = req.body
+    const { filename } = req.file
 
-    if (nuevoNombreArchivo === null) {
-      return res.status(500).json({ message: 'No se pudo subir la imagen' })
+    if (!filename || !user) {
+      return res.status(400).json({ message: 'Faltan datos en el formulario' })
     }
 
-    const [resultado] = await pool.execute('INSERT INTO imagenes(imagen, usuario) VALUES (?, ?)', [nuevoNombreArchivo, user])
+    const [resultado] = await pool.execute(
+      'INSERT INTO imagenes(imagen, usuario) VALUES (?, ?)',
+      [filename, user]
+    )
 
     if (resultado.affectedRows === 1) {
-      return res.status(201).json({ message: 'Se guardó la imagen correctamente' })
+      return res
+        .status(201)
+        .json({ message: 'Se guardó la imagen correctamente' })
     }
 
     res.status(500).json({ message: 'Error interno' })
@@ -68,14 +75,21 @@ export const subirImagen = async (req, res) => {
 
 export const subirPdf = async (req, res) => {
   try {
-    if (nuevoNombreArchivo === null) {
+    const { filename } = req.file
+
+    if (filename === null) {
       return res.status(500).json({ message: 'No se pudo subir el pdf' })
     }
 
-    const [resultado] = await pool.execute('INSERT INTO pdfs(pdf, usuario) VALUES (?, "Juan")', [nuevoNombreArchivo])
+    const [resultado] = await pool.execute(
+      'INSERT INTO pdfs(pdf, usuario) VALUES (?, "Juan")',
+      [filename]
+    )
 
     if (resultado.affectedRows === 1) {
-      return res.status(201).json({ message: 'Se guardó el pdf correctamente' })
+      return res
+        .status(201)
+        .json({ message: 'Se guardó el pdf correctamente' })
     }
 
     res.status(500).json({ message: 'Error interno' })
@@ -89,7 +103,7 @@ export const deleteArchivo = async (req, res) => {
   try {
     const { tipo, nombre } = req.params
 
-    if (tipo !== 'pdf' && tipo !== 'imagen') return res.status(400).json({ message: 'Tipo de archivo desconocido' })
+    if (tipo !== 'pdf' && tipo !== 'imagen') { return res.status(400).json({ message: 'Tipo de archivo desconocido' }) }
 
     const carpetaNombre = tipo === 'imagen' ? 'img' : 'pdf'
     const nombreTabla = tipo === 'imagen' ? 'imagenes' : 'pdfs'
@@ -98,7 +112,10 @@ export const deleteArchivo = async (req, res) => {
     const rutaArchivo = path.resolve(`./uploads/${carpetaNombre}/${nombre}`)
     await fs.unlink(rutaArchivo)
 
-    const [resultado] = await pool.execute(`DELETE FROM ${nombreTabla} WHERE ${nombreColumna} = ?`, [nombre])
+    const [resultado] = await pool.execute(
+      `DELETE FROM ${nombreTabla} WHERE ${nombreColumna} = ?`,
+      [nombre]
+    )
 
     if (resultado.affectedRows === 1) {
       return res.json({ message: 'Archivo eliminado' })

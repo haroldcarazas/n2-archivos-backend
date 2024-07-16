@@ -1,14 +1,12 @@
 import multer from 'multer'
 
-export let nuevoNombreArchivo = null
-
 const storageImage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './uploads/img')
   },
   filename: function (req, file, cb) {
-    nuevoNombreArchivo = `${Date.now()}-${file.originalname}`
-    cb(null, nuevoNombreArchivo)
+    const nuevoNombre = `${Date.now()}-${file.originalname}`
+    cb(null, nuevoNombre)
   }
 })
 
@@ -17,8 +15,8 @@ const storagePdf = multer.diskStorage({
     cb(null, './uploads/pdf')
   },
   filename: function (req, file, cb) {
-    nuevoNombreArchivo = `${Date.now()}-${file.originalname}`
-    cb(null, nuevoNombreArchivo)
+    const nuevoNombre = `${Date.now()}-${file.originalname}`
+    cb(null, nuevoNombre)
   }
 })
 

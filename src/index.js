@@ -1,41 +1,14 @@
 import express from 'express'
-import { uploadImage, uploadPdf } from './multer.js'
-import { deleteArchivo, getImagen, getImagenes, getPdf, subirImagen, subirPdf } from './controller.js'
-import { manejarErrorArchivo } from './helpers.js'
-import { PORT, originsAllowed } from './config.js'
-import swaggerUi from 'swagger-ui-express'
-import jsonDocs from './swagger-output.json' assert {type: 'json'}
+import { PORT } from './config/config.js'
+import imagenesRoutes from './routes/imagenes.routes.js'
+import { corsValidation } from './middlewares/middleware.js'
 
 const app = express()
 
-app.use((req, res, next) => {
-  const { origin } = req.headers
+app.use(express.json())
+app.use(corsValidation)
+app.use('/api/imagenes', imagenesRoutes)
 
-  if (originsAllowed.includes(origin) || origin === undefined) {
-    res.setHeader('Access-Control-Allow-Origin', origin ?? '*')
-    next()
-  }
-})
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(jsonDocs))
-app.get('/imagenes', getImagenes)
-app.get('/imagenes/:nombre', getImagen)
-app.get('/pdf/:nombre', getPdf)
-
-app.post(
-  '/imagenes',
-  uploadImage.single('archivo'),
-  subirImagen,
-  manejarErrorArchivo
+app.listen(PORT, () =>
+  console.log(`Server running on http://localhost:${PORT}`)
 )
-
-app.post(
-  '/pdf',
-  uploadPdf.single('curriculum'),
-  subirPdf,
-  manejarErrorArchivo
-)
-
-app.delete('/archivo/:tipo/:nombre', deleteArchivo)
-
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`))
